@@ -7,10 +7,10 @@ As the GUI for Animtool does not employ menus, all interaction is accomplished v
 
 = Details =
 
-  *Q: Quit. *NOTE* You should always use Q rather than closing the window or pressing ESC, due to a Processing bug where the application is not properly notified of window close events.
-  *O: Open a timeline file
-  *Shift + S: "Save As..." Save the current timeline to a new file.
-  *S: Save the current timeline data to the current file.
-  *K: Stop the playback head.
-  *L: Play forward (tap multiple times to accelerate playback)
-  *J: Play reverse (tap multiple times to accelerate playback)
+  *q: Quit. *NOTE* You should always use Q rather than closing the window or pressing ESC, due to a Processing bug where the application is not properly notified of window close events.
+  *o: Open a timeline file
+  *(Shift + s): "Save As..." Save the current timeline to a new file.
+  *s: Save the current timeline data to the current file.
+  *k: Stop the playback head.
+  *l: Play forward (tap multiple times to accelerate playback)
+  *j: Play reverse (tap multiple times to accelerate playback)
