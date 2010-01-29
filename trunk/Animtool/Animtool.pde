@@ -1,20 +1,20 @@
 /**
-    AnimTool, a generic keyframe timeline animation tool for driving anything you can animate.
-    Copyright (C) 2010 Jacob Tonski
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ * AnimTool, a generic keyframe timeline animation tool for driving anything you can animate.
+ * Copyright (C) 2010 Jacob Tonski
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 import processing.serial.*;
 
@@ -142,9 +142,10 @@ void mousePressed() {
       //remember the current timeline as long as the mouse is clicked
       mouseInTimeline = i;          
       //tell the now current timeline the mouse was pressed
-      timeline[mouseInTimeline].mousePressed(map(mouseXTrans, timelineX[mouseInTimeline], timelineX[mouseInTimeline]+timelineW[mouseInTimeline], 0, timelineNativeWidth),
-      map(mouseY, timelineY[mouseInTimeline], timelineY[mouseInTimeline]+timelineH[mouseInTimeline], 0, timelineNativeHeight),
-      modifierKey);
+      timeline[mouseInTimeline].mousePressed(map(mouseXTrans, 
+        timelineX[mouseInTimeline], timelineX[mouseInTimeline]+timelineW[mouseInTimeline], 0, timelineNativeWidth),
+        map(mouseY, timelineY[mouseInTimeline],
+        timelineY[mouseInTimeline]+timelineH[mouseInTimeline], 0, timelineNativeHeight), modifierKey);
       break;
     }
   }
@@ -386,6 +387,7 @@ void shutdown() {
   }
   exit();
 }
+
 
 
 
