@@ -20,7 +20,7 @@ Keyboard Commands
   * *Arrow Left/Right*: Scroll across timeline.
 
 Mouse Interaction
-  * Shift + LeftClick: Add a new keyframe
+  * `Shift + LeftClick`: Add a new keyframe
   *   (drag to modify immediately)
   * LeftClick on keyframe: Select that keyframe
   *   (drag to modify immediately)
