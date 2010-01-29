@@ -21,8 +21,8 @@ Keyboard Commands
 
 Mouse Interaction
   * `Shift + LeftClick`: Add a new keyframe
-  *   (drag to modify immediately)
-  * LeftClick on keyframe: Select that keyframe
-  *   (drag to modify immediately)
-  * LeftClick no keyframe: Deselect
-  * LeftClick no keyframe & drag: Range select
+  * `  (drag to modify immediately)`
+  * `LeftClick on keyframe`: Select that keyframe
+  * `  (drag to modify immediately)`
+  * `LeftClick no keyframe`: Deselect
+  * `LeftClick no keyframe & drag`: Range select
