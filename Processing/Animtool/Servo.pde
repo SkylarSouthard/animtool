@@ -58,12 +58,14 @@ class Servo implements AnimationRecipient {
     int val = floor(value);
     int p = floor(pin);
     //println("Writing pin " + pin + " @ " +  val);
+        if (serialPort != null) {
+
     serialPort.write("s");
     serialPort.write(str(p));
     serialPort.write(",");
     serialPort.write(str(val));
     serialPort.write("\n");
-
+        }
   }
 
   //INPUT/OUTPUT
@@ -105,6 +107,7 @@ class Servo implements AnimationRecipient {
     
     println("Hey Arduino!  ...  " + getPropertiesSaveString());
     
+    if (serialPort != null) {
     serialPort.write("a"); // init message
     serialPort.write(str(pin));
     serialPort.write(",");
@@ -112,12 +115,15 @@ class Servo implements AnimationRecipient {
     serialPort.write(",");
     serialPort.write(str(maxPulse)); //send maxPulse
     serialPort.write("\n");
+    }
   } 
   
   void shutdown() {
+    if (serialPort != null) {
     serialPort.write("d");
     serialPort.write(str(pin));
     serialPort.write("\n");
+    }
   }
 
 }

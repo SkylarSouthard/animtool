@@ -24,16 +24,12 @@ int HEIGHT = 600;
 
 //timeline display properties
 int numInitialTimelines = 2;
-Timeline[] timeline = {
-};
-float[] timelineX = {
-};
-float[] timelineY = {
-};
-float[] timelineW = {
-};
-float[] timelineH = {
-};
+Timeline[] timeline = {};
+float[] timelineX = {};
+float[] timelineY = {};
+float[] timelineW = {};
+float[] timelineH = {};
+
 int timelineNativeWidth = WIDTH;
 int timelineNativeHeight = 200;
 
@@ -74,7 +70,8 @@ void setup() {
 
   println(Serial.list());
   String portName = Serial.list()[0];
-  serialPort = new Serial(this, portName, 57600);
+  //if serial port is found successfully, then use it. If not, then don't crash for crying out loud!
+  //serialPort = new Serial(this, portName, 57600);
 
 
   animRecipientFactory = new AnimationRecipientFactory();
@@ -98,20 +95,36 @@ void setup() {
 void draw() {
 
   //testing:  
-  if (serialPort.available() > 0 ) {
+  
+  if (serialPort != null && serialPort.available() > 0 ) {
     print( serialPort.readString() ); 
   }
 
 
   background(0);
-  //if the current timeline's not where it should be, shift everything.
-  float displayTargetOff = curTimelineDisplayY - timelineY[curTimeline];
-  if (displayTargetOff != 0) {
+  //if the current timeline's not where it should be, shift everything vertically.
+  float displayTargetOffY = curTimelineDisplayY - timelineY[curTimeline];
+  if (displayTargetOffY != 0) {
     for (int i=0; i < timeline.length; i++) {
-      timelineY[i] += constrain(displayTargetOff, -displayMotionSpeed, displayMotionSpeed);
+      timelineY[i] += constrain(displayTargetOffY, -displayMotionSpeed, displayMotionSpeed);
     }
   }
+  //if curTime is too close to screen edge, offset so that curTime is onscreen
+  float curTimeX = scalePixelsPerSecond * player.getCurTime() + horizontalDisplayOffset;
+  //moving left?
+  float howFarOff = curTimeX - width*.1;
+  if (howFarOff < 0 && player.getPlaybackRate() < 0) {
+    horizontalDisplayOffset -= howFarOff;
+    horizontalDisplayOffset = min(horizontalDisplayOffset, 0);
+  }
+  //moving right?
+  howFarOff = width*.9 - curTimeX;
+  if (howFarOff < 0 && player.getPlaybackRate() > 0) {
+    horizontalDisplayOffset += howFarOff;
+  }
 
+
+  //draw timeline images
   for (int i=0; i < timeline.length; i++) {
     image(timeline[i].getDisplay(), timelineX[i] + horizontalDisplayOffset, timelineY[i], timeline[i].getWidth(), timelineH[i]);
   }
@@ -126,6 +139,7 @@ void draw() {
   stroke(timeIndicatorColor);
   float theTime = player.getCurTime();
   line(scalePixelsPerSecond * theTime + horizontalDisplayOffset, 0, scalePixelsPerSecond * theTime + horizontalDisplayOffset, height);
+  
 }
 
 
@@ -296,6 +310,14 @@ void pushValuesAtTime(float time) {
   }  
 }
 
+float getEndmostTime() {
+  float endmostTime = 0;
+  for (int i=0; i < timeline.length; i++) {
+    float thisOne = timeline[i].getEndmostTime();
+    if (thisOne > endmostTime) endmostTime = thisOne;
+  } 
+  return endmostTime;
+}
 
 void saveToFile(boolean doSaveAs) {
 
