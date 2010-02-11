@@ -60,9 +60,8 @@ class PlaybackThread extends Thread {
         curTime = 0;
         playbackRate = 0;
       }
-      //TODO: find the longest timeline's duration
-      else if (curTime > 999) {
-        curTime = 99;
+      else if (curTime >= getEndmostTime()) {
+        curTime = getEndmostTime();
         playbackRate = 0; 
       }
 
