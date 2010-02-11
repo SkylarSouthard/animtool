@@ -113,13 +113,13 @@ void draw() {
   float curTimeX = scalePixelsPerSecond * player.getCurTime() + horizontalDisplayOffset;
   //moving left?
   float howFarOff = curTimeX - width*.1;
-  if (howFarOff < 0 && player.getPlaybackRate() < 0) {
+  if (howFarOff < 0 && player.getPlaybackRate() != 0) {
     horizontalDisplayOffset -= howFarOff;
     horizontalDisplayOffset = min(horizontalDisplayOffset, 0);
-  }
+  } 
   //moving right?
   howFarOff = width*.9 - curTimeX;
-  if (howFarOff < 0 && player.getPlaybackRate() > 0) {
+  if (howFarOff < 0 && player.getPlaybackRate() != 0) {
     horizontalDisplayOffset += howFarOff;
   }
 
@@ -205,6 +205,7 @@ void keyPressed() {
     }
     else if (keyCode == LEFT) {
       horizontalDisplayOffset += scalePixelsPerSecond/2; //SOMETHING, but it should be based on scale factor.
+      horizontalDisplayOffset = min(horizontalDisplayOffset, 0);
     }
     else if (keyCode == RIGHT) {
       horizontalDisplayOffset -= scalePixelsPerSecond/2; //SOMETHING, but it should be based on scale factor.
@@ -313,8 +314,10 @@ void pushValuesAtTime(float time) {
 float getEndmostTime() {
   float endmostTime = 0;
   for (int i=0; i < timeline.length; i++) {
+    if (timeline[i] != null) {
     float thisOne = timeline[i].getEndmostTime();
     if (thisOne > endmostTime) endmostTime = thisOne;
+    }
   } 
   return endmostTime;
 }
@@ -380,6 +383,7 @@ void loadFromFile() {
 
 }
 
+
 //TODO:
 //add a keystroke to create a new timeline, rather than copy/paste in the saved file...
 
@@ -409,6 +413,7 @@ void shutdown() {
   }
   exit();
 }
+
 
 
 

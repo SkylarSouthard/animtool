@@ -28,6 +28,7 @@ class Timeline {
   boolean highlight = false;
   
   int numDisplayPixelsPerCurveSample = 20;
+  float minHandleTimeDifference = 0.01;
 
   Handle[] handle;
   int[] curHandle = {
@@ -35,8 +36,9 @@ class Timeline {
 
   /* interactMode:
    -1: none
-   0: dragging handle(s)
-   1: drawing box
+   0: dragging easing handle
+   1: dragging handle(s)
+   2: drawing box
    */
   int interactMode = -1;
   float[] rangeSelectX = {
@@ -122,9 +124,10 @@ class Timeline {
         pdispX = dispX;
         pval = val;
       }
-      //draw final interp to next handle (maybe not standard step size)
-      //foreground.line(pdispX, valueToLocalY(pval), handleX2, handleY2);
     }
+    //line to right edge
+    foreground.line(timeToLocalX(handle[handle.length-1].time), valueToLocalY(handle[handle.length-1].value), foreground.width, valueToLocalY(handle[handle.length-1].value));
+    
 
 
     //draw handles
@@ -142,6 +145,16 @@ class Timeline {
         else foreground.noStroke(); 
       }
       foreground.ellipse(timeToLocalX(handle[i].time), valueToLocalY(handle[i].value), keyFrameDiameter, keyFrameDiameter);
+      
+      //easing controls
+      foreground.fill(easingHandleFillColor);
+      foreground.line(timeToLocalX(handle[i].time) - keyFrameDiameter/2, valueToLocalY(handle[i].value),
+                      timeToLocalX(handle[i].time) - (keyFrameDiameter/2 + handle[i].easeIn * easingDisplayRange), valueToLocalY(handle[i].value));
+      foreground.ellipse(timeToLocalX(handle[i].time) - (keyFrameDiameter + handle[i].easeIn * easingDisplayRange), valueToLocalY(handle[i].value), keyFrameDiameter, keyFrameDiameter);
+      foreground.line(timeToLocalX(handle[i].time) + keyFrameDiameter/2, valueToLocalY(handle[i].value),
+                      timeToLocalX(handle[i].time) + (keyFrameDiameter/2 + handle[i].easeOut * easingDisplayRange), valueToLocalY(handle[i].value));
+      foreground.ellipse(timeToLocalX(handle[i].time) + (keyFrameDiameter + handle[i].easeOut * easingDisplayRange), valueToLocalY(handle[i].value), keyFrameDiameter, keyFrameDiameter);
+      
     }
 
     //dragging a selection box:
@@ -240,6 +253,7 @@ class Timeline {
       //if a standard click, select or start a box drag
       //if hit test on a keyframe handle, make it curHandle
       for (int i=0; i < handle.length; i++) {
+        //did we click on a keyframe handle?
         if (dist(timeToLocalX(handle[i].time), valueToLocalY(handle[i].value), localX, localY) <= keyFrameDiameter/2f) {
           interactMode = 1;
           //if no box, then
@@ -250,6 +264,24 @@ class Timeline {
             //we grabbed a handle outisde the current selection. Select this handle for drag.
             curHandle[0] = curHandle[1] = i;
           }
+          break;
+        }
+        //did we click on an easeIn handle?
+        else if(dist(timeToLocalX(handle[i].time) - (keyFrameDiameter + handle[i].easeIn * easingDisplayRange), valueToLocalY(handle[i].value), localX, localY) <= keyFrameDiameter/2f) {
+          interactMode = 0;
+          //select this handle
+          //if it's the easeIn Handle, set it as curHandle[0].
+          curHandle[0] = i;
+          curHandle[1] = -1;
+          break;
+        }
+        //did we click on an easeOut handle?
+        else if(dist(timeToLocalX(handle[i].time) + (keyFrameDiameter + handle[i].easeOut * easingDisplayRange), valueToLocalY(handle[i].value), localX, localY) <= keyFrameDiameter/2f) {
+          interactMode = 0;
+          //select this handle
+          //if it's the easeIn Handle, set it as curHandle[0].
+          curHandle[0] = -1;
+          curHandle[1] = i;
           break;
         }
       }
@@ -281,8 +313,8 @@ class Timeline {
 
       //calculate constraints on change      
       float timeOffset = constrain(localXToTime(localX-plocalX), 
-      handle[curHandle[0]-1].time - handle[curHandle[0]].time, 
-      curHandle[1] < handle.length-1 ? (handle[curHandle[1]+1].time - handle[curHandle[1]].time) : Float.MAX_VALUE );
+      minHandleTimeDifference + handle[curHandle[0]-1].time - handle[curHandle[0]].time, 
+      curHandle[1] < handle.length-1 ? (handle[curHandle[1]+1].time - handle[curHandle[1]].time - minHandleTimeDifference) : Float.MAX_VALUE );
       float valueOffset = constrain(localYToValue(localY)-localYToValue(plocalY), 
       minValue - valueLowerBound, maxValue - valueUpperBound);
 
@@ -296,6 +328,16 @@ class Timeline {
       rangeSelectX[1] = localXToTime(localX);
       updateRangeSelection();
     }
+    else if (interactMode == 0) {
+      if (curHandle[1] == -1 && curHandle[0] > -1) {
+        handle[curHandle[0]].easeIn = constrain(handle[curHandle[0]].easeIn + (plocalX-localX) / easingDisplayRange, 0, 1);
+      } else if (curHandle[0] == -1 && curHandle[1] > -1) {
+        handle[curHandle[1]].easeOut = constrain(handle[curHandle[1]].easeOut + (localX-plocalX) / easingDisplayRange, 0, 1);
+      } else {
+       //error case
+        println("ERROR setting easeIn/Out Handle"); 
+      }
+    }
 
     refreshFore();
   }
@@ -308,6 +350,9 @@ class Timeline {
       rangeSelectX[0] = rangeSelectX[1] = -1;
     }
 
+    if (interactMode == 0) {
+      curHandle[0] = curHandle[1] = -1;
+    }
     interactMode = -1;
     //if dragging handles, just keep the selection.
 
@@ -490,8 +535,8 @@ class Timeline {
    * e.g. if easeOut=1 && easeIn = 0 calculated t values will change slowly and then speed up
    */
   float getEasingValue(float t, float easeOut, float easeIn) {
-    float start = -HALF_PI + ((1-easeOut) * PI/2.00f);
-    float end  =  HALF_PI - ((1-easeIn) * PI/2.00f); 
+    float start = -HALF_PI + ((1-easeOut) * PI/2.001f);
+    float end  =  HALF_PI - ((1-easeIn) * PI/2.001f); 
     return norm(sin(start + t*(end-start)), sin(start), sin(end));
   }
 
@@ -508,6 +553,7 @@ class Timeline {
     }
     return result;
   }
+  
 
   boolean loadFromString(String input) {
     //println("loadFromString: " + input);

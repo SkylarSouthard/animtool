@@ -23,13 +23,15 @@ color guideLineColor = color(0, 0, 20);
 int numGuideLines = 5;
 
 boolean keyFrameStroke = true;
-color keyFrameStrokeColor = color(250);
-color keyFrameStrokeSelectColor = color(250);
-
+color keyFrameStrokeColor = color(250, 200);
+color keyFrameStrokeSelectColor = color(250, 200);
 boolean keyFrameFill = true;
-color keyFrameFillColor = color(50, 190, 0);
-color keyFrameFillSelectColor = color(190, 50, 0);
+color keyFrameFillColor = color(50, 190, 0, 200);
+color keyFrameFillSelectColor = color(190, 50, 0, 200);
 float keyFrameDiameter = 10;
+float easingHandleFillColor = color(50, 190, 0, 100);
+color easingHandleFillSelectColor = color(190, 50, 0, 100);
+float easingDisplayRange = 30;
 
 color interpolationLineColor = color(220);
 float interpolationLineWeight = 1;
