@@ -338,7 +338,7 @@ class Timeline {
         println("ERROR setting easeIn/Out Handle"); 
       }
     }
-
+    
     refreshFore();
   }
 

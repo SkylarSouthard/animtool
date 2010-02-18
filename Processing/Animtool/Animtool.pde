@@ -18,6 +18,8 @@
 
 import processing.serial.*;
 
+boolean enableSerial = false;
+
 //set main window width, height
 int WIDTH = 800;
 int HEIGHT = 600;
@@ -71,19 +73,21 @@ void setup() {
   println(Serial.list());
   String portName = Serial.list()[0];
   //if serial port is found successfully, then use it. If not, then don't crash for crying out loud!
-  //serialPort = new Serial(this, portName, 57600);
+
 
 
   animRecipientFactory = new AnimationRecipientFactory();
   timelineFont = loadFont(timelineFontFilename);
 
-  while (timeline == null || timeline.length == 0) {
-    loadFromFile();
+  if (timeline == null || timeline.length == 0) {
+    if (!loadFromFile()) {
+      shutdown();
+    }
     //addTimeline(numInitialTimelines);
   }
 
   curTimelineDisplayY = (HEIGHT - timelineNativeHeight)/2;
-  timeline[curTimeline].highlight();
+  if (timeline != null && timeline.length > 0) timeline[curTimeline].highlight();
 
 
   player = new PlaybackThread();
@@ -350,15 +354,18 @@ void saveToFile(boolean doSaveAs) {
 }
 
 
-void loadFromFile() {
+boolean loadFromFile() {
 
   curFilename = selectInput();
 
   //TODO: check that the file is valid?
+  if (curFilename == null || curFilename.equals("")) {
+    return false;
+  }
   File f = new File(curFilename);
   if (!f.canRead() || !f.isFile()) {
     println("Tried to load an invalid file.");
-    return;
+    return false;
   } 
   else {
     f = null;
@@ -381,6 +388,7 @@ void loadFromFile() {
 
   selectPrevTimeline();
 
+  return true;
 }
 
 
@@ -407,7 +415,7 @@ void addTimeline(int howMany) {
 }
 
 void shutdown() {
-  player.shutdown();
+  if (player != null) player.shutdown();
   for (int i=0; i < timeline.length; i++) {
     timeline[i].shutdown();
   }
