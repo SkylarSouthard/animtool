@@ -1,5 +1,5 @@
 #include <Servo.h> 
-#define numServos 13
+#define numServos 12
 
 Servo myservo[numServos];  // create servo object to control a servo 
 int myServoPos[numServos];
@@ -26,7 +26,7 @@ void setup()
 
   Serial.begin(57600);
 
-  blink(3, 100);
+  blink(4, 150);
 } 
 
 int angle = 0;
@@ -35,6 +35,9 @@ void loop()
   int debugControl = analogRead(0);
   if (debugControl > 512) debug = true;
   else debug = false;
+ 
+  //force debug 
+  debug = true;
 
   while (Serial.available() > 0) {
     char nextChar = Serial.read();
@@ -66,14 +69,26 @@ void loop()
         //we're good to go. do the attach.
         myservo[i].attach(i, myServoMinPulse[i], myServoMaxPulse[i]);
         myServoPending[i] = false;
-        Serial.print("Attached servo to pin ");
-        Serial.println(i);
+        if (debug) {
+            Serial.print("Servo attach to pin ");
+            Serial.print(i);
+          if (myservo[i].attached()) {
+            Serial.println(" SUCCESSFUL.");
+          }
+          else {
+            Serial.println(" FAILED.");
+          }
+        }
       }
       if (myservo[i].attached()) {
         myservo[i].write(myServoPos[i]); // sets the servo position according to the scaled value 
         myServoChanged[i] = false;
-        //Serial.print("set servo ");
-        //Serial.println(i);
+        if (debug) {
+          Serial.print("Set servo ");
+          Serial.print(i);
+          Serial.print("@");
+          Serial.println(myServoPos[i]);
+        }
       }
     }
 
@@ -95,7 +110,7 @@ boolean getArgs(int numArgs) {
     if (Serial.available() > 0) {
       //grab next available char
       char nextChar = Serial.read();
-      //if (debug) Serial.println(nextChar);
+      if (debug) Serial.print(nextChar);
       //if it's a delimeter, convert current arg and go to next arg
       if (nextChar == ',' || nextChar == '\n') {
         args[argCounter++] = atoi(buffer);
@@ -112,6 +127,9 @@ boolean getArgs(int numArgs) {
     }
   }
   //if we ended up here, we timed out. Return unsuccessfully.
+  if (debug) {
+   Serial.println("TIMED OUT"); 
+  }
   return false;
 
 
@@ -119,9 +137,16 @@ boolean getArgs(int numArgs) {
 
 
 void handleAttach() {
-  if (debug) Serial.print("Handling Attach Command: ");
+  if (debug) Serial.print("Handling Attach Command:");
 
   if (getArgs(3)) {
+    if (args[0] >= numServos || args[0] < 0) {
+     if (debug) {
+      Serial.print("Cannot attach servo ");
+      Serial.print(args[0]);
+      Serial.println(". Valid range is 0-11.");
+     } 
+    }
     //if we got here, then we can attach the servo.
     myServoMinPulse[args[0]] = args[1];
     myServoMaxPulse[args[0]] = args[2];
@@ -133,7 +158,7 @@ void handleAttach() {
     }
 
     if (debug) {    
-      Serial.print("Success: ");
+      Serial.print(":Success: ");
       Serial.print(args[0]);
       Serial.print("@");
       Serial.print(args[1]);
@@ -149,12 +174,12 @@ void handleAttach() {
 }
 
 void handleSet() {
-  if (debug) Serial.print("Handling Set Command: ");
+  if (debug) Serial.print("Handling Set Command:");
   if (getArgs(2)) {
     myServoPos[args[0]] = args[1];
     myServoChanged[args[0]] = true;
     if (debug) {
-      Serial.print("Success: ");
+      Serial.print(":Success: ");
       Serial.print(args[0]);
       Serial.print("@");
       Serial.print(args[1]);
@@ -168,14 +193,14 @@ void handleSet() {
 }
 
 void handleDetach() {
-  if (debug) Serial.print("Handling Detach Command: ");
+  if (debug) Serial.print("Handling Detach Command:");
   if (getArgs(1)) {
     if (myservo[args[0]].attached()) {
       myservo[args[0]].detach();
       myServoPending[args[0]] = false;
     }
     if (debug) {
-      Serial.print("Success: ");
+      Serial.print(":Success: ");
       Serial.print(args[0]);
       //blink(3, 300);
     }
