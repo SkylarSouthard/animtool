@@ -18,7 +18,7 @@
 
 import processing.serial.*;
 
-boolean enableSerial = false;
+boolean enableSerial = true;
 
 //set main window width, height
 int WIDTH = 800;
@@ -73,7 +73,7 @@ void setup() {
   println(Serial.list());
   String portName = Serial.list()[0];
   //if serial port is found successfully, then use it. If not, then don't crash for crying out loud!
-
+  serialPort = new Serial(this, portName, 57600);
 
 
   animRecipientFactory = new AnimationRecipientFactory();
