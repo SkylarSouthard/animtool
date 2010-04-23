@@ -12,6 +12,7 @@ Keyboard Commands
   * *o*: Open a timeline file
   * (Shift + s): "Save As..." Save the current timeline to a new file.
   * *s*: Save the current timeline data to the current file.
+  * *r*: toggle looping playback.
   * *k*: Stop the playback head.
   * *j/l*: Play reverse/forward (each key touch accelerates playback in that direction).
   * *del/backspace*: Delete the current selection.
